@@ -9,10 +9,8 @@ eslint no-unused-vars: [
 ]
 */
 
-const { employees, prices, hours } = require('./data');
-const data = require('./data');
-
-const { animals } = data;
+const { animals, employees, prices, hours } = require('./data');
+// const data = require('./data');
 
 function animalsByIds(...ids) {
   if (ids.length < 1) {
@@ -119,11 +117,34 @@ function increasePrices(percentage) {
 
   return prices;
 }
-/*
-function employeeCoverage(idOrName) {
-  // seu código aqui
+
+function searchEmployeeByIdOrName(foundObj) {
+  const { firstName, lastName, responsibleFor } = foundObj;
+  const specieArr = responsibleFor.reduce((newArr, animalId) => {
+    const animalFound = animals.find(({ id }) => id === animalId);
+    return newArr.concat(animalFound.name);
+  }, []);
+  return { [`${firstName} ${lastName}`]: specieArr };
 }
- */
+
+function employeeCoverage(idOrName) {
+  const foundEmployeeByIdOrName = employees.find(({ id, firstName, lastName }) =>
+    id === idOrName || firstName === idOrName || lastName === idOrName);
+
+  const reducer = (newObj, { firstName, lastName, responsibleFor }) => {
+    const specieArr = responsibleFor.reduce((newArr, animalId) => {
+      const animalFound = animals.find(({ id }) => id === animalId);
+      return newArr.concat(animalFound.name);
+    }, []);
+    return Object.assign(newObj, { [`${firstName} ${lastName}`]: specieArr });
+  };
+
+  const employeesResponsible = employees.reduce(reducer, {});
+  if (!idOrName) return employeesResponsible;
+
+  return searchEmployeeByIdOrName(foundEmployeeByIdOrName);
+}
+
 module.exports = {
   entryCalculator,
   schedule,
@@ -131,7 +152,7 @@ module.exports = {
   // animalMap,
   animalsByIds,
   employeeByName,
-  // employeeCoverage,
+  employeeCoverage,
   addEmployee,
   isManager,
   animalsOlderThan,
