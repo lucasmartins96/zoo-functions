@@ -76,10 +76,42 @@ function entryCalculator(entrants) {
   });
   return total;
 }
-/*
+
+function showAnimalsLocationReducer() {
+  return animals.reduce((objReduce, { location, name }) => {
+    const animalLocation = objReduce;
+    if (!animalLocation[location]) animalLocation[location] = [];
+    animalLocation[location].push(name);
+    return animalLocation;
+  }, {});
+}
+
+const generateAnimalNamesByCriteria = (arrTarget, criterion, sorted) => {
+  const animalsFilteredBySex = (
+    criterion ? arrTarget.filter(({ sex }) => sex === criterion) : false
+  );
+  const animalsNames = (
+    animalsFilteredBySex ? animalsFilteredBySex.map((resident) => resident.name)
+      : arrTarget.map((resident) => resident.name)
+  );
+  const sortedNames = animalsNames.slice().sort();
+  return (sorted ? sortedNames : animalsNames);
+};
+
 function animalMap(options) {
-  // seu código aqui
-} */
+  if (!options || !options.includeNames) return showAnimalsLocationReducer();
+
+  return animals.reduce((objReduce, { location }) => {
+    const animalLocation = objReduce;
+    const animalsPerLocation = animals.filter((animal) => (animal.location === location));
+    const animalsAndYourNames = animalsPerLocation.map(({ name, residents }) => {
+      const newArr = generateAnimalNamesByCriteria(residents, options.sex, options.sorted);
+      return { [name]: newArr };
+    });
+    if (!animalLocation[location]) animalLocation[location] = animalsAndYourNames;
+    return animalLocation;
+  }, {});
+}
 
 function schedule(dayName) {
   const obj = {};
@@ -115,7 +147,7 @@ function increasePrices(percentage) {
   prices.Senior = Math.ceil(Senior * (percentage + 100)) / 100;
   prices.Child = Math.ceil(Child * (percentage + 100)) / 100;
 
-  return prices;
+  // return prices;
 }
 
 function searchEmployeeByIdOrName(foundObj) {
@@ -149,7 +181,7 @@ module.exports = {
   entryCalculator,
   schedule,
   animalCount,
-  // animalMap,
+  animalMap,
   animalsByIds,
   employeeByName,
   employeeCoverage,
